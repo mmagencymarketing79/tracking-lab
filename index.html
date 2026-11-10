@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracking Lab — Khoa</title>
+
   <style>
     body {
       font-family: system-ui, sans-serif;
-      max-width: 640px;
+      max-width: 720px;
       margin: 48px auto;
       padding: 0 20px;
       line-height: 1.6;
@@ -26,8 +27,31 @@
       margin: 4px 4px 4px 0;
       cursor: pointer;
     }
+
+    button:disabled {
+      cursor: default;
+    }
+
+    #checkout {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    #order-result {
+      overflow-wrap: anywhere;
+    }
+
+    #order-log {
+      padding: 16px;
+      background: #f6f7fb;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
   </style>
 </head>
+
 <body>
   <p>
     <strong>DEMO học tracking — không bán hàng, không thu tiền.</strong>
@@ -43,168 +67,166 @@
     <button type="button" id="add-to-cart">Thêm vào giỏ</button>
     <button type="button" id="reset-cart">Xóa giỏ</button>
 
-    <p>Số lượng trong giỏ: <strong id="cart-quantity">0</strong></p>
-    <p>Tổng tiền: <strong id="cart-total">0 VND</strong></p>
+    <p>
+      Số lượng trong giỏ:
+      <strong id="cart-quantity">0</strong>
+    </p>
+
+    <p>
+      Tổng tiền:
+      <strong id="cart-total">0 VND</strong>
+    </p>
 
     <button type="button" id="begin-checkout">
       Tiến hành checkout
     </button>
 
-  <section id="checkout" hidden>
-  <h2>Checkout demo</h2>
-  <p id="checkout-summary"></p>
-  <p>Không thu tiền. Nút dưới chỉ tạo đơn giả lập.</p>
+    <section id="checkout" hidden>
+      <h2>Checkout demo</h2>
+      <p id="checkout-summary"></p>
+      <p>Không thu tiền. Nút dưới chỉ tạo đơn giả lập.</p>
 
-  <button type="button" id="confirm-order">
-    Xác nhận đơn DEMO
-  </button>
+      <button type="button" id="confirm-order">
+        Xác nhận đơn DEMO
+      </button>
 
-  <p id="order-result" role="status"></p>
-</section>
+      <p id="order-result" role="status"></p>
+    </section>
+
+    <h2>Nhật ký đơn DEMO</h2>
+    <p>
+      Nhật ký lưu trong trình duyệt này để thực hành đối soát.
+      Xóa dữ liệu trang web sẽ làm mất nhật ký.
+    </p>
+
+    <pre id="order-log" aria-live="polite"></pre>
   </article>
 
- <script>
-  const price = 100000;
-  let quantity = 0;
-  let orderCreated = false;
+  <script>
+    const price = 100000;
+    const storageKey = "trackingLabOrders";
 
-  function updateCart() {
-    document.getElementById("checkout").hidden = true;
-    document.getElementById("cart-quantity").textContent = quantity;
+    let quantity = 0;
+    let orderCreated = false;
 
-    const total = price * quantity;
-    document.getElementById("cart-total").textContent =
-      total.toLocaleString("vi-VN") + " VND";
+    const cartQuantity = document.getElementById("cart-quantity");
+    const cartTotal = document.getElementById("cart-total");
+    const checkout = document.getElementById("checkout");
+    const checkoutSummary = document.getElementById("checkout-summary");
+    const confirmButton = document.getElementById("confirm-order");
+    const orderResult = document.getElementById("order-result");
+    const orderLog = document.getElementById("order-log");
 
-    orderCreated = false;
-    document.getElementById("confirm-order").disabled = false;
-    document.getElementById("order-result").textContent = "";
-  }
-
-  document.getElementById("add-to-cart").addEventListener("click", function () {
-    quantity += 1;
-    updateCart();
-  });
-
-  document.getElementById("reset-cart").addEventListener("click", function () {
-    quantity = 0;
-    updateCart();
-  });
-
-  document.getElementById("begin-checkout").addEventListener("click", function () {
-    if (quantity === 0) {
-      alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
-      return;
+    function formatMoney(value) {
+      return value.toLocaleString("vi-VN") + " VND";
     }
 
-    const total = price * quantity;
+    function readOrders() {
+      const savedData = localStorage.getItem(storageKey);
+      const orders = savedData ? JSON.parse(savedData) : [];
 
-    document.getElementById("checkout-summary").textContent =
-      "Số lượng: " + quantity +
-      " — Tổng tiền: " + total.toLocaleString("vi-VN") + " VND";
+      if (!Array.isArray(orders)) {
+        throw new Error("Nhật ký đơn không đúng định dạng.");
+      }
 
-    document.getElementById("checkout").hidden = false;
-  });
-
-  document.getElementById("confirm-order").addEventListener("click", function () {
-    if (
-      quantity === 0 ||
-      document.getElementById("checkout").hidden ||
-      orderCreated
-    ) {
-      return;
+      return orders;
     }
 
-    const orderId = "DEMO-" + crypto.randomUUID();
-    const total = price * quantity;
+    function showOrderLog() {
+      try {
+        const orders = readOrders();
 
-    orderCreated = true;
-    document.getElementById("confirm-order").disabled = true;
-
-    document.getElementById("order-result").textContent =
-      "Đã tạo đơn giả lập: " + orderId +
-      " — Tổng tiền: " + total.toLocaleString("vi-VN") +
-      " VND. Không có thanh toán thật.";
-  });
-</script>
-</body>
-</html><!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tracking Lab — Khoa</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      max-width: 640px;
-      margin: 48px auto;
-      padding: 0 20px;
-      line-height: 1.6;
-      background: #f6f7fb;
-      color: #172033;
+        orderLog.textContent =
+          orders.length === 0
+            ? "Chưa có đơn demo được lưu."
+            : JSON.stringify(orders, null, 2);
+      } catch (error) {
+        orderLog.textContent =
+          "Không đọc được nhật ký. Hãy kiểm tra dữ liệu lưu trữ trình duyệt.";
+      }
     }
-    article {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
+
+    function updateCart() {
+      cartQuantity.textContent = quantity;
+      cartTotal.textContent = formatMoney(price * quantity);
+
+      checkout.hidden = true;
+      checkoutSummary.textContent = "";
+      orderResult.textContent = "";
+
+      orderCreated = false;
+      confirmButton.disabled = false;
     }
-  </style>
-</head>
-<body>
-  <p><strong>DEMO học tracking — không bán hàng, không thu tiền.</strong></p>
-  <h1>Shop demo của Khoa</h1>
-  <article>
-    <h2>Sổ tay demo</h2>
-    <p>Mã sản phẩm: DEMO-NOTE-01</p>
-    <p>Giá: <strong>100.000 VND</strong></p>
-    <button type="button" id="add-to-cart">Thêm vào giỏ</button>
-<button type="button" id="reset-cart">Xóa giỏ</button>
 
-<p>Số lượng trong giỏ: <strong id="cart-quantity">0</strong></p>
-<p>Tổng tiền: <strong id="cart-total">0 VND</strong></p>
-<button type="button" id="begin-checkout">Tiến hành checkout</button>
+    document.getElementById("add-to-cart").addEventListener("click", function () {
+      quantity += 1;
+      updateCart();
+    });
 
-<section id="checkout" hidden>
-  <h2>Checkout demo</h2>
-  <p id="checkout-summary"></p>
-  <p>Đây là bước kiểm tra đơn giả lập, chưa tạo đơn hàng.</p>
-</section>
-document.getElementById("begin-checkout").addEventListener("click", function () {
-  if (quantity === 0) {
-    alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
-    return;
-  }
+    document.getElementById("reset-cart").addEventListener("click", function () {
+      quantity = 0;
+      updateCart();
+    });
 
-  const total = price * quantity;
+    document.getElementById("begin-checkout").addEventListener("click", function () {
+      if (quantity === 0) {
+        alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
+        return;
+      }
 
-  document.getElementById("checkout-summary").textContent =
-    "Số lượng: " + quantity +
-    " — Tổng tiền: " + total.toLocaleString("vi-VN") + " VND";
+      checkoutSummary.textContent =
+        "Số lượng: " + quantity +
+        " — Tổng tiền: " + formatMoney(price * quantity);
 
-  document.getElementById("checkout").hidden = false;
-});<script>
-  const price = 100000;
-  let quantity = 0;
+      checkout.hidden = false;
+    });
 
-  function updateCart() {document.getElementById("checkout").hidden = true;
-    document.getElementById("cart-quantity").textContent = quantity;
+    confirmButton.addEventListener("click", function () {
+      if (quantity === 0 || checkout.hidden || orderCreated) {
+        return;
+      }
 
-    const total = price * quantity;
-    document.getElementById("cart-total").textContent =
-      total.toLocaleString("vi-VN") + " VND";
-  }
+      let order;
 
-  document.getElementById("add-to-cart").addEventListener("click", function () {
-    quantity += 1;
+      try {
+        order = {
+          transaction_id: "DEMO-" + crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+          currency: "VND",
+          value: price * quantity,
+          items: [{
+            item_id: "DEMO-NOTE-01",
+            item_name: "Sổ tay demo",
+            price: price,
+            quantity: quantity
+          }]
+        };
+
+        const orders = readOrders();
+        orders.push(order);
+
+        localStorage.setItem(storageKey, JSON.stringify(orders));
+      } catch (error) {
+        alert(
+          "Chưa tạo được đơn demo vì không lưu được nhật ký. " +
+          "Hãy kiểm tra cài đặt lưu trữ trình duyệt."
+        );
+        return;
+      }
+
+      orderCreated = true;
+      confirmButton.disabled = true;
+
+      orderResult.textContent =
+        "Đã tạo đơn giả lập: " + order.transaction_id +
+        " — Tổng tiền: " + formatMoney(order.value) +
+        ". Không có thanh toán thật.";
+
+      showOrderLog();
+    });
+
     updateCart();
-  });
-
-  document.getElementById("reset-cart").addEventListener("click", function () {
-    quantity = 0;
-    updateCart();
-  });
-</script>
-  </article>
+    showOrderLog();
+  </script>
 </body>
 </html>
