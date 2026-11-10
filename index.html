@@ -50,52 +50,83 @@
       Tiến hành checkout
     </button>
 
-    <section id="checkout" hidden>
-      <h2>Checkout demo</h2>
-      <p id="checkout-summary"></p>
-      <p>Đây là bước kiểm tra đơn giả lập, chưa tạo đơn hàng.</p>
-    </section>
+  <section id="checkout" hidden>
+  <h2>Checkout demo</h2>
+  <p id="checkout-summary"></p>
+  <p>Không thu tiền. Nút dưới chỉ tạo đơn giả lập.</p>
+
+  <button type="button" id="confirm-order">
+    Xác nhận đơn DEMO
+  </button>
+
+  <p id="order-result" role="status"></p>
+</section>
   </article>
 
-  <script>
-    const price = 100000;
-    let quantity = 0;
+ <script>
+  const price = 100000;
+  let quantity = 0;
+  let orderCreated = false;
 
-    function updateCart() {
-      document.getElementById("checkout").hidden = true;
+  function updateCart() {
+    document.getElementById("checkout").hidden = true;
+    document.getElementById("cart-quantity").textContent = quantity;
 
-      document.getElementById("cart-quantity").textContent = quantity;
+    const total = price * quantity;
+    document.getElementById("cart-total").textContent =
+      total.toLocaleString("vi-VN") + " VND";
 
-      const total = price * quantity;
-      document.getElementById("cart-total").textContent =
-        total.toLocaleString("vi-VN") + " VND";
+    orderCreated = false;
+    document.getElementById("confirm-order").disabled = false;
+    document.getElementById("order-result").textContent = "";
+  }
+
+  document.getElementById("add-to-cart").addEventListener("click", function () {
+    quantity += 1;
+    updateCart();
+  });
+
+  document.getElementById("reset-cart").addEventListener("click", function () {
+    quantity = 0;
+    updateCart();
+  });
+
+  document.getElementById("begin-checkout").addEventListener("click", function () {
+    if (quantity === 0) {
+      alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
+      return;
     }
 
-    document.getElementById("add-to-cart").addEventListener("click", function () {
-      quantity += 1;
-      updateCart();
-    });
+    const total = price * quantity;
 
-    document.getElementById("reset-cart").addEventListener("click", function () {
-      quantity = 0;
-      updateCart();
-    });
+    document.getElementById("checkout-summary").textContent =
+      "Số lượng: " + quantity +
+      " — Tổng tiền: " + total.toLocaleString("vi-VN") + " VND";
 
-    document.getElementById("begin-checkout").addEventListener("click", function () {
-      if (quantity === 0) {
-        alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
-        return;
-      }
+    document.getElementById("checkout").hidden = false;
+  });
 
-      const total = price * quantity;
+  document.getElementById("confirm-order").addEventListener("click", function () {
+    if (
+      quantity === 0 ||
+      document.getElementById("checkout").hidden ||
+      orderCreated
+    ) {
+      return;
+    }
 
-      document.getElementById("checkout-summary").textContent =
-        "Số lượng: " + quantity +
-        " — Tổng tiền: " + total.toLocaleString("vi-VN") + " VND";
+    const orderId = "DEMO-" + crypto.randomUUID();
+    const total = price * quantity;
 
-      document.getElementById("checkout").hidden = false;
-    });
-  </script>
+    orderCreated = true;
+    document.getElementById("confirm-order").disabled = true;
+
+    document.getElementById("order-result").textContent =
+      "Đã tạo đơn giả lập: " + orderId +
+      " — Tổng tiền: " + total.toLocaleString("vi-VN") +
+      " VND. Không có thanh toán thật.";
+  });
+</script>
 </body>
 </html><!doctype html>
 <html lang="vi">
