@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-  <!-- Google Tag Manager -->
+  <!-- Google Tag Manager: chỉ cài một lần -->
   <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-MDL2CFVP"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -12,11 +12,9 @@
     }
     gtag('js', new Date());
   </script>
-  <!-- End Google Tag Manager -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracking Lab — Khoa</title>
-
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -27,33 +25,11 @@
       background: #f6f7fb;
       color: #172033;
     }
-
-    article {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-    }
-
-    button {
-      padding: 10px 14px;
-      margin: 4px 4px 4px 0;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      cursor: default;
-    }
-
-    #checkout {
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid #ddd;
-    }
-
-    #order-result {
-      overflow-wrap: anywhere;
-    }
-
+    article { background: white; padding: 24px; border-radius: 16px; }
+    button { padding: 10px 14px; margin: 4px 4px 4px 0; cursor: pointer; }
+    button:disabled { cursor: default; }
+    #checkout { margin-top: 24px; padding-top: 16px; border-top: 1px solid #ddd; }
+    #order-result { overflow-wrap: anywhere; }
     #order-log {
       padding: 16px;
       background: #f6f7fb;
@@ -63,61 +39,36 @@
     }
   </style>
 </head>
-
 <body>
-  <p>
-    <strong>DEMO học tracking — không bán hàng, không thu tiền.</strong>
-  </p>
-
+  <p><strong>DEMO học tracking — không bán hàng, không thu tiền.</strong></p>
   <h1>Shop demo của Khoa</h1>
-
   <article>
     <h2>Sổ tay demo</h2>
     <p>Mã sản phẩm: DEMO-NOTE-01</p>
     <p>Giá: <strong>100.000 VND</strong></p>
-
     <button type="button" id="add-to-cart">Thêm vào giỏ</button>
     <button type="button" id="reset-cart">Xóa giỏ</button>
-
-    <p>
-      Số lượng trong giỏ:
-      <strong id="cart-quantity">0</strong>
-    </p>
-
-    <p>
-      Tổng tiền:
-      <strong id="cart-total">0 VND</strong>
-    </p>
-
-    <button type="button" id="begin-checkout">
-      Tiến hành checkout
-    </button>
+    <p>Số lượng trong giỏ: <strong id="cart-quantity">0</strong></p>
+    <p>Tổng tiền: <strong id="cart-total">0 VND</strong></p>
+    <button type="button" id="begin-checkout">Tiến hành checkout</button>
 
     <section id="checkout" hidden>
       <h2>Checkout demo</h2>
       <p id="checkout-summary"></p>
       <p>Không thu tiền. Nút dưới chỉ tạo đơn giả lập.</p>
-
-      <button type="button" id="confirm-order">
-        Xác nhận đơn DEMO
-      </button>
-
+      <button type="button" id="confirm-order">Xác nhận đơn DEMO</button>
       <p id="order-result" role="status"></p>
     </section>
 
     <h2>Nhật ký đơn DEMO</h2>
-    <p>
-      Nhật ký lưu trong trình duyệt này để thực hành đối soát.
-      Xóa dữ liệu trang web sẽ làm mất nhật ký.
-    </p>
-
+    <p>Nhật ký lưu trong trình duyệt này để thực hành đối soát.
+      Xóa dữ liệu trang web sẽ làm mất nhật ký.</p>
     <pre id="order-log" aria-live="polite"></pre>
   </article>
 
   <script>
     const price = 100000;
     const storageKey = "trackingLabOrders";
-
     let quantity = 0;
     let orderCreated = false;
 
@@ -136,22 +87,18 @@
     function readOrders() {
       const savedData = localStorage.getItem(storageKey);
       const orders = savedData ? JSON.parse(savedData) : [];
-
       if (!Array.isArray(orders)) {
         throw new Error("Nhật ký đơn không đúng định dạng.");
       }
-
       return orders;
     }
 
     function showOrderLog() {
       try {
         const orders = readOrders();
-
-        orderLog.textContent =
-          orders.length === 0
-            ? "Chưa có đơn demo được lưu."
-            : JSON.stringify(orders, null, 2);
+        orderLog.textContent = orders.length === 0
+          ? "Chưa có đơn demo được lưu."
+          : JSON.stringify(orders, null, 2);
       } catch (error) {
         orderLog.textContent =
           "Không đọc được nhật ký. Hãy kiểm tra dữ liệu lưu trữ trình duyệt.";
@@ -161,11 +108,9 @@
     function updateCart() {
       cartQuantity.textContent = quantity;
       cartTotal.textContent = formatMoney(price * quantity);
-
       checkout.hidden = true;
       checkoutSummary.textContent = "";
       orderResult.textContent = "";
-
       orderCreated = false;
       confirmButton.disabled = false;
     }
@@ -173,6 +118,25 @@
     document.getElementById("add-to-cart").addEventListener("click", function () {
       quantity += 1;
       updateCart();
+
+      // Xóa dữ liệu ecommerce cũ trong GTM trước khi đưa dữ liệu mới.
+      window.dataLayer.push({ ecommerce: null });
+
+      // Mỗi lần bấm thành công chỉ thêm 1 sản phẩm.
+      // quantity ở đây là lượng vừa thêm, không phải toàn bộ giỏ.
+      window.dataLayer.push({
+        event: "add_to_cart",
+        ecommerce: {
+          currency: "VND",
+          value: price,
+          items: [{
+            item_id: "DEMO-NOTE-01",
+            item_name: "Sổ tay demo",
+            price: price,
+            quantity: 1
+          }]
+        }
+      });
     });
 
     document.getElementById("reset-cart").addEventListener("click", function () {
@@ -185,21 +149,14 @@
         alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
         return;
       }
-
-      checkoutSummary.textContent =
-        "Số lượng: " + quantity +
+      checkoutSummary.textContent = "Số lượng: " + quantity +
         " — Tổng tiền: " + formatMoney(price * quantity);
-
       checkout.hidden = false;
     });
 
     confirmButton.addEventListener("click", function () {
-      if (quantity === 0 || checkout.hidden || orderCreated) {
-        return;
-      }
-
+      if (quantity === 0 || checkout.hidden || orderCreated) return;
       let order;
-
       try {
         order = {
           transaction_id: "DEMO-" + crypto.randomUUID(),
@@ -213,27 +170,19 @@
             quantity: quantity
           }]
         };
-
         const orders = readOrders();
         orders.push(order);
-
         localStorage.setItem(storageKey, JSON.stringify(orders));
       } catch (error) {
-        alert(
-          "Chưa tạo được đơn demo vì không lưu được nhật ký. " +
-          "Hãy kiểm tra cài đặt lưu trữ trình duyệt."
-        );
+        alert("Chưa tạo được đơn demo vì không lưu được nhật ký. " +
+          "Hãy kiểm tra cài đặt lưu trữ trình duyệt.");
         return;
       }
-
       orderCreated = true;
       confirmButton.disabled = true;
-
-      orderResult.textContent =
-        "Đã tạo đơn giả lập: " + order.transaction_id +
+      orderResult.textContent = "Đã tạo đơn giả lập: " + order.transaction_id +
         " — Tổng tiền: " + formatMoney(order.value) +
         ". Không có thanh toán thật.";
-
       showOrderLog();
     });
 
