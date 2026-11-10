@@ -40,11 +40,24 @@
   <p id="checkout-summary"></p>
   <p>Đây là bước kiểm tra đơn giả lập, chưa tạo đơn hàng.</p>
 </section>
-<script>
+document.getElementById("begin-checkout").addEventListener("click", function () {
+  if (quantity === 0) {
+    alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
+    return;
+  }
+
+  const total = price * quantity;
+
+  document.getElementById("checkout-summary").textContent =
+    "Số lượng: " + quantity +
+    " — Tổng tiền: " + total.toLocaleString("vi-VN") + " VND";
+
+  document.getElementById("checkout").hidden = false;
+});<script>
   const price = 100000;
   let quantity = 0;
 
-  function updateCart() {
+  function updateCart() {document.getElementById("checkout").hidden = true;
     document.getElementById("cart-quantity").textContent = quantity;
 
     const total = price * quantity;
