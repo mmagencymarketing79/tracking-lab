@@ -33,7 +33,13 @@
 
 <p>Số lượng trong giỏ: <strong id="cart-quantity">0</strong></p>
 <p>Tổng tiền: <strong id="cart-total">0 VND</strong></p>
+<button type="button" id="begin-checkout">Tiến hành checkout</button>
 
+<section id="checkout" hidden>
+  <h2>Checkout demo</h2>
+  <p id="checkout-summary"></p>
+  <p>Đây là bước kiểm tra đơn giả lập, chưa tạo đơn hàng.</p>
+</section>
 <script>
   const price = 100000;
   let quantity = 0;
