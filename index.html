@@ -14,6 +14,105 @@
       background: #f6f7fb;
       color: #172033;
     }
+
+    article {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+    }
+
+    button {
+      padding: 10px 14px;
+      margin: 4px 4px 4px 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <p>
+    <strong>DEMO học tracking — không bán hàng, không thu tiền.</strong>
+  </p>
+
+  <h1>Shop demo của Khoa</h1>
+
+  <article>
+    <h2>Sổ tay demo</h2>
+    <p>Mã sản phẩm: DEMO-NOTE-01</p>
+    <p>Giá: <strong>100.000 VND</strong></p>
+
+    <button type="button" id="add-to-cart">Thêm vào giỏ</button>
+    <button type="button" id="reset-cart">Xóa giỏ</button>
+
+    <p>Số lượng trong giỏ: <strong id="cart-quantity">0</strong></p>
+    <p>Tổng tiền: <strong id="cart-total">0 VND</strong></p>
+
+    <button type="button" id="begin-checkout">
+      Tiến hành checkout
+    </button>
+
+    <section id="checkout" hidden>
+      <h2>Checkout demo</h2>
+      <p id="checkout-summary"></p>
+      <p>Đây là bước kiểm tra đơn giả lập, chưa tạo đơn hàng.</p>
+    </section>
+  </article>
+
+  <script>
+    const price = 100000;
+    let quantity = 0;
+
+    function updateCart() {
+      document.getElementById("checkout").hidden = true;
+
+      document.getElementById("cart-quantity").textContent = quantity;
+
+      const total = price * quantity;
+      document.getElementById("cart-total").textContent =
+        total.toLocaleString("vi-VN") + " VND";
+    }
+
+    document.getElementById("add-to-cart").addEventListener("click", function () {
+      quantity += 1;
+      updateCart();
+    });
+
+    document.getElementById("reset-cart").addEventListener("click", function () {
+      quantity = 0;
+      updateCart();
+    });
+
+    document.getElementById("begin-checkout").addEventListener("click", function () {
+      if (quantity === 0) {
+        alert("Giỏ đang trống. Hãy thêm sản phẩm trước.");
+        return;
+      }
+
+      const total = price * quantity;
+
+      document.getElementById("checkout-summary").textContent =
+        "Số lượng: " + quantity +
+        " — Tổng tiền: " + total.toLocaleString("vi-VN") + " VND";
+
+      document.getElementById("checkout").hidden = false;
+    });
+  </script>
+</body>
+</html><!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracking Lab — Khoa</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 640px;
+      margin: 48px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+      background: #f6f7fb;
+      color: #172033;
+    }
     article {
       background: white;
       padding: 24px;
